@@ -5,6 +5,7 @@
 #include <set>
 #include <array>
 #include <algorithm>
+#include <map>
 
 using namespace std;
 
@@ -432,6 +433,73 @@ vector<vector<int> > generate(int numRows) {
 	return r;
 }
 
+//88. Merge Sorted Array
+//reverse the order
+void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
+	int M = m - 1, N = n - 1, X = m + n - 1;
+	while (M >= 0 && N >= 0) {
+		nums1[X--] = nums1[M]>nums2[N] ? nums1[M--] : nums2[N--];
+	}
+	if (N >= 0) {
+		while (X >= 0)
+			nums1[X--] = nums2[N--];
+	}
+}
+
+//628. Maximum Product of Three Numbers
+//Sorts the elements in the range [first,last) into ascending order.   N*log2(N)
+int maximumProduct(vector<int>& nums) {
+	sort(nums.begin(), nums.end());
+	size_t n = nums.size();
+
+	int one = nums[0] * nums[1] * nums[2];
+	int another = nums[n - 3] * nums[n - 2] * nums[n - 1];
+
+	int ret = max(one, another);
+
+	return ret;
+}
+
+//532. K - diff Pairs in an Array
+//check naughty input
+int findPairs(vector<int>& nums, int k) {
+	if (k<0)
+		return 0;
+	unordered_map<int, int> hash;
+	set<int> total;
+	for (size_t i = 0; i<nums.size(); i++) {
+		int target = nums[i] - k;
+		int target2 = nums[i] + k;
+		if (hash.find(target) != hash.end()) {
+			total.insert(target + nums[i]);
+		}
+		if (hash.find(target2) != hash.end()) {
+			total.insert(target2 + nums[i]);
+		}
+		hash[nums[i]] = 1;
+	}
+	return total.size();
+}
+
+//532. 
+int findPairs1(vector<int>& nums, int k) {
+	if (k<0) return 0;
+	int res = 0;
+	sort(nums.begin(), nums.end());
+	for (int i = 0, j = 1, n = nums.size(); i<n && j<n; ) {
+		if (i == j || nums[j] - nums[i]<k) j++;
+		else if (nums[j] - nums[i]>k) i++;
+		else {
+			res++;
+			while (j<n && nums[j] - nums[i] == k) j++;//slide on duplicate target
+			while (j<n - 1 && nums[j] == nums[j + 1]) j++;//slide on duplicate
+			int i0 = i;
+			while (i<j && nums[i0] == nums[i]) i++;//slide on duplicate
+		}
+	}
+	return res;
+}
+
 int main()
 {
 	//int i = 1;
@@ -447,14 +515,15 @@ int main()
 
 	//twoSum(nums,result);
 	//removeElement(nums,3);
-	vector<int> nums = {};
+	vector<int> nums = {1,2,3,4,5};
+	vector<int> nums1 = {};
 	int myarr[] = { 1,2,3,4,5 };
 	vector<vector<int>> vet = { { 1,2,3 },
 	{ 4,5 },
 	{ 1,2,3 } };
 
 
-	getRow(1);
+	findPairs(nums,3);
 
 
 
