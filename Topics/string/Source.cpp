@@ -104,7 +104,7 @@ string reverseWords(string s) {
 	}
 	return s;
 }
-
+////////////////////////////////////////////////////////////////////////////////////
 //551. Student Attendance Record I
 bool checkRecord(string s) {
 	int a = 0, l = 0;
@@ -116,7 +116,7 @@ bool checkRecord(string s) {
 	}
 	return true;
 }
-
+////////////////////////////////////////////////////////////////////////////////////
 //541. Reverse String II
 /**
 * 0            k           2k          3k
@@ -133,13 +133,13 @@ string reverseStr(string s, int k) {
 	}
 	return s;
 }
-
+////////////////////////////////////////////////////////////////////////////////////
 //521. Longest Uncommon Subsequence I
 //yeah you go me
 int findLUSlength(string a, string b) {
 	return a == b ? -1 : max(a.size(), b.size());
 }
-
+////////////////////////////////////////////////////////////////////////////////////
 //13. Roman to Integer
 //Ⅰ（1）、Ⅴ（5）、Ⅹ（10）、Ⅼ（50）、Ⅽ（100）、Ⅾ（500）、Ⅿ（1000）
 // reverse the order
@@ -161,7 +161,7 @@ int romanToInt(string s) {
 	}
 	return sum;
 }
-
+////////////////////////////////////////////////////////////////////////////////////
 //14. Longest Common Prefix
 //string+=, consider empty input
 string longestCommonPrefix(vector<string>& strs) {
@@ -176,7 +176,7 @@ string longestCommonPrefix(vector<string>& strs) {
 		}
 	}
 }
-
+////////////////////////////////////////////////////////////////////////////////////
 //520. Detect Capital
 bool detectCapitalUse(string word) {
 	int N = (int)word.size() - 1;
@@ -194,7 +194,7 @@ bool detectCapitalUse(string word) {
 	}
 	return true;
 }
-
+////////////////////////////////////////////////////////////////////////////////////
 //20. Valid Parentheses
 bool isValid(string s) {
 	stack<char> mystack;
@@ -223,10 +223,185 @@ bool isValid(string s) {
 		return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////////
+//459. Repeated Substring Pattern
+/*
+str + str means doubling, (str + str).substr(1, str.size() * 2 - 2) means removing the first char of the first half and the last char of the second half.
+
+If there is no pattern, both of the first copy and the second copy will be changed, so str will not be found in(str + str).substr(1, str.size() * 2 - 2).
+If there is a pattern, the first char of str can still be found in the first half, and the last char of str can also be found in the second half.
+Here is an example : abcabc is the original string, and (bcabc abcab) includes abcabc.
+*/
+bool repeatedSubstringPattern0(string s) {
+	string doubleS = s + s;
+	return (doubleS).substr(1, s.size() * 2 - 2).find(s) != -1;
+}
+
+//string.substr(start,length);
+bool repeatedSubstringPattern(string str) {
+	int n = str.length();
+	for (int i = 1; i <= n / 2; i++)
+		if (n % i == 0 && str.substr(i) == str.substr(0, n - i))//shift left and right should be the same
+			return true;
+	return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//606. Construct String from Binary Tree
+// Definition for a binary tree node.
+ struct TreeNode {
+     int val;
+     TreeNode *left;
+     TreeNode *right;
+     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ };
+
+//to_string();
+string tree2str(TreeNode* t) {
+	string ret;
+	if (t == NULL)
+		return ret;
+	ret += to_string(t->val);
+
+	if (t->left) {
+		ret += "(" + tree2str(t->left) + ")";
+	}
+	else if (t->right) {
+		ret += "()";
+	}
+
+	if (t->right) {
+		ret += "(" + tree2str(t->right) + ")";
+	}
+
+	return ret;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//434. Number of Segments in a String
+//consider extreme input(empty or overwhelm), modify the input to avoid edge situation
+int countSegments(string s) {
+	int res = 0;
+	s.push_back(' ');
+	for (int i = 1; i < (int)s.size(); ++i)
+		if (s[i] == ' ' && s[i - 1] != ' ') ++res;
+	return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//38. Count and Say
+string seq(string str) {
+	string got;
+	char cur = str[0];
+	int count = 1;
+	for (size_t i = 1; i<str.size(); i++) {
+		if (str[i] == cur)
+			count++;
+		else {
+			got += to_string(count) + cur;
+			cur = str[i];
+			count = 1;
+		}
+	}
+	got += to_string(count) + cur;
+	return got;
+}
+string countAndSay(int n) {
+	string str = "1";
+	while (--n>0)
+		str = seq(str);
+	return str;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//383. Ransom Note
+//slow but notice find_first_of(char,n) find_last_of(char,n)
+bool canConstruct(string ransomNote, string magazine) {
+	size_t r = ransomNote.size();
+	size_t m = magazine.size();
+	if (r>m)
+		return false;
+
+	sort(ransomNote.begin(), ransomNote.end());
+	sort(magazine.begin(), magazine.end());
+	for (size_t i = 0; i<r;) {
+		int begin = ransomNote.find_first_of(ransomNote[i]);
+		int end = ransomNote.find_last_of(ransomNote[i]);
+
+		int begin1 = magazine.find_first_of(ransomNote[i]);
+		int end1 = magazine.find_last_of(ransomNote[i]);
+
+		if (begin1==-1||end - begin>end1 - begin1)
+			return false;
+		i = end + 1;
+	}
+	return true;
+}
+
+bool canConstruct1(string ransomNote, string magazine) {
+	unordered_map<char, int> map(26);
+	for (size_t i = 0; i < magazine.size(); ++i)
+		++map[magazine[i]];
+	for (size_t j = 0; j < ransomNote.size(); ++j)
+		if (--map[ransomNote[j]] < 0)
+			return false;
+	return true;
+}
+
+bool canConstruct2(string ransomNote, string magazine) {
+	vector<int> vec(26, 0);
+	for (size_t i = 0; i < magazine.size(); ++i)
+		++vec[magazine[i] - 'a'];
+	for (size_t j = 0; j < ransomNote.size(); ++j)
+		if (--vec[ransomNote[j] - 'a'] < 0)
+			return false;
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//345. Reverse Vowels of a String
+//find_first_of(target chars, start point),  template <class T> void swap (T& a, T& b)
+string reverseVowels(string s) {
+	vector<size_t> Vowels;
+	int found = s.find_first_of("aeiouAEIOU");
+	while (found != -1) {
+		Vowels.push_back(found);
+		found = s.find_first_of("aeiouAEIOU", found + 1);
+	}
+	for (int j = 0, k = (int)Vowels.size() - 1; j<k; j++, k--) {
+		swap(s[Vowels[j]], s[Vowels[k]]);
+	}
+	return s;
+}
+
+//more clean
+string reverseVowels1(string s) {
+	int i = 0, j = s.size() - 1;
+	while (i < j) {
+		i = s.find_first_of("aeiouAEIOU", i);
+		j = s.find_last_of("aeiouAEIOU", j);
+		if (i < j) {
+			swap(s[i++], s[j--]);
+		}
+	}
+	return s;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//344. Reverse String
+string reverseString(string s) {
+	for (int i = 0, j = (int)s.size() - 1; i<j; i++, j--) {
+		swap(s[i], s[j]);
+	}
+	return s;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
 int main()
 {
-	std::string str("]");
-	std::string str2("AAAA");
+	std::string str("a");
+	std::string str2("b");
 
 
 	int M = str2.size();
@@ -235,7 +410,7 @@ int main()
 	// values for pattern
 	vector<string> strr = { "a","b" };
 
-	isValid(str);
+	reverseVowels("");
 
 	return 0;
 }
