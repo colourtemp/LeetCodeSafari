@@ -397,6 +397,151 @@ string reverseString(string s) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
+//58. Length of Last Word
+//cinsider 0-1 overflow
+int lengthOfLastWord(string s) {
+	s += ' ';
+	int space1 = s.size();
+	do {
+		space1 = s.find_last_of(' ', space1 - 1);
+	} while (space1>0 && s[space1 - 1] == ' ');
+
+	int space0 = s.find_last_of(' ', space1 - 1);
+
+	if (space1 == 0)//no char
+		return 0;
+	else if (space0 == -1)//word with no leading space
+		return space1;
+	else
+		return space1 - space0 - 1;
+}
+
+//smarter
+int lengthOfLastWord1(string s) {
+	int len = 0, tail = s.length() - 1;
+	while (tail >= 0 && s[tail] == ' ') tail--;
+	while (tail >= 0 && s[tail] != ' ') {
+		len++;
+		tail--;
+	}
+	return len;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//67. Add Binary
+//reverse
+string addBinary(string a, string b) {
+	string res;
+	size_t l = max(a.size(), b.size());
+	int A = a.size() - 1;
+	int B = b.size() - 1;
+	int carry = 0, sum = 0;
+	while (l-->0) {
+		sum = 0;
+		if (A >= 0 && a[A--] == '1')
+			sum++;
+		if (B >= 0 && b[B--] == '1')
+			sum++;
+		sum += carry;
+
+		if (sum == 0)
+			res += '0';
+		else if (sum == 1) {
+			res += '1';
+			carry = 0;
+		}
+		else if (sum == 2) {
+			res += '0';
+			carry = 1;
+		}
+		else if (sum == 3) {
+			res += '1';
+			carry = 1;
+		}
+	}
+	if (carry == 1)
+		res += '1';
+	reverse(res.begin(), res.end());
+	return res;
+}
+
+//know ASCII better
+string addBinary1(string a, string b)
+{
+	string s = "";
+
+	int c = 0, i = a.size() - 1, j = b.size() - 1;
+	while (i >= 0 || j >= 0 || c == 1)
+	{
+		c += i >= 0 ? a[i--] - '0' : 0;
+		c += j >= 0 ? b[j--] - '0' : 0;
+		s = char(c % 2 + '0') + s;
+		c /= 2;
+	}
+
+	return s;
+}
+
+//know true==1,false==0 and XOR better
+string addBinary2(string a, string b)
+{
+	string result = "";
+	int apos = a.size() - 1;
+	int bpos = b.size() - 1;
+	int adigit, bdigit, carry = 0;
+
+	while (apos >= 0 || bpos >= 0 || carry == 1)
+	{
+		adigit = bdigit = 0;
+
+		if (apos >= 0) adigit = a[apos--] == '1';
+		if (bpos >= 0) bdigit = b[bpos--] == '1';
+
+		// Another way: the digit is 1 if adigit + bdigit + carry == 1 or == 3, but I noticed that
+		// XOR is more concise:
+		result = static_cast<char>(adigit ^ bdigit ^ carry + '0') + result;
+		carry = adigit + bdigit + carry >= 2;
+	}
+
+	return result;
+}
+////////////////////////////////////////////////////////////////////////////////////
+//125. Valid Palindrome
+//always consider empty input
+//isalnum(char),toupper(char)
+bool isPalindrome(string s) {
+	for (int i = 0, j = s.size() - 1; i < j; i++, j--) { // Move 2 pointers from each end until they collide
+		while (isalnum(s[i]) == false && i < j) i++; // Increment left pointer if not alphanumeric
+		while (isalnum(s[j]) == false && i < j) j--; // Decrement right pointer if no alphanumeric
+		if (toupper(s[i]) != toupper(s[j])) return false; // Exit and return error if not match
+	}
+
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+// 22. Generate Parentheses
+class Solution {
+public:
+	vector<string> generateParenthesis(int n) {
+		N = 2 * n;
+		Add("(", 1, 0);
+		return ret;
+
+	}
+private:
+	void Add(string s, int lef, int rig) {
+		if (lef<rig || lef>N / 2 || rig>N / 2)
+			return;
+		if (lef + rig == N)
+			ret.push_back(s);
+		string copy = s;
+		Add(s += '(', ++lef, rig);
+		Add(copy += ')', --lef, ++rig);
+	}
+	int N;
+	vector<string> ret;
+};
 
 int main()
 {
@@ -410,7 +555,8 @@ int main()
 	// values for pattern
 	vector<string> strr = { "a","b" };
 
-	reverseVowels("");
+	Solution myS;
+	myS.generateParenthesis(3);
 
 	return 0;
 }
