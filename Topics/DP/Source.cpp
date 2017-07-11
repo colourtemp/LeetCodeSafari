@@ -8,7 +8,7 @@ class NumArray {
 public:
 	NumArray(vector<int> nums) {
 		accu.push_back(0);
-		for (int i = 0; i<nums.size(); i++) {
+		for (int i = 0; i<(int)nums.size(); i++) {
 			accu.push_back(accu.back() + nums[i]);
 		}
 	}
@@ -83,7 +83,7 @@ int climbStairs(int n) {
 //and b tells you the number of ways to reach the next step. 
 //So for the situation one step further up, the old b becomes the new a, and the new b is the old a+b, 
 //since that new step can be reached by climbing 1 step from what b represented or 2 steps from what a represented.
-int climbStairs(int n) {
+int climbStairsN(int n) {
 	int a = 1, b = 1;
 	while (n--) {
 		b = a+b;
