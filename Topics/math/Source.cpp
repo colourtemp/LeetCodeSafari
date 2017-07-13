@@ -3,6 +3,8 @@
 #include <vector>
 #include <algorithm>// min max
 #include <unordered_set>
+#include <numeric>//accumulate
+#include <set>
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -175,8 +177,8 @@ bool checkPerfectNumber1(int num) {
 
 //////////////////////////////////////////////////////////////////////////////
 //453. Minimum Moves to Equal Array Elements
-//do some simple math works noy   -_-#
-int minMoves(vector<int>& nums) {
+//do some simple math works    -_-#
+int minMoves0(vector<int>& nums) {
 	int n = nums.size();
 	if (n <= 1)
 		return 0;
@@ -190,9 +192,184 @@ int minMoves(vector<int>& nums) {
 	return sum - long(mn)*long(n);
 }
 
-void main() {
-	int b = INT_MAX;
+//////////////////////////////////////////////////////////////////////////////
+//441. Arranging Coins
+int arrangeCoins0(int n) {
+	if (n<2)
+		return n;
+	for (int i = 2; i>0; i++)
+	{
+		double times = (double)i / 2;
+		double sum = times*(i + 1);//consider overflow
+		if (sum>n)
+			return i - 1;
+		else if ((sum == n))
+			return i;
+	}
+}
 
-	vector<int> ve = { 1,2,3 };
-	int A = minMoves(ve);
+//math!
+/*
+-> (1+x)x/2 = n
+-> x ^ 2 + x = 2n
+->x ^ 2 + x + 1 / 4 = 2n + 1 / 4
+-> (x + 1 / 2) ^ 2 = 2n + 1 / 4
+-> (x + 0.5) = sqrt(2n + 0.25)
+->x = -0.5 + sqrt(2n + 0.25)
+*/
+int arrangeCoins(int n) {
+	return -0.5 + sqrt((double)2 * n + 0.25);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//258. Add Digits
+//math trivia
+int addDigits(int num) {
+	if (num == 0)
+		return 0;
+	else if (num % 9 == 0)
+		return 9;
+	else
+		return num % 9;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//263. Ugly Number
+//this will get all prime number but slow for current question
+//also notice : abs(-2147483648)==-2147483648 INT_MAX==2147483647, INT_MIN=-2147483648
+bool isUgly(int num) {
+	if (num == 1)
+		return true;
+	set<int> myset;
+	if (num <= 0)
+		return false;
+	while (num>1) {
+		for (int i = 2; i <= num; i++) {
+			if (num%i == 0) {
+				num = num / i;
+				myset.insert(i);
+				break;
+			}
+		}
+	}
+	myset.erase(2);
+	myset.erase(3);
+	myset.erase(5);
+	if (myset.size()>0)
+		return false;
+	else
+		return true;
+}
+
+//smarter
+bool isUgly1(int num) {
+	for (int i = 2; i<6 && num; i++) {//2,3,4(represent 2),5
+		while (num%i == 0)
+			num = num / i;
+	}
+	return num == 1;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//231. Power of Two
+bool isPowerOfTwo(int n) {
+	if (n <= 0)
+		return false;
+	return !(n&(n - 1));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//7. Reverse Integer
+int reverse(int x) {
+	long res = 0;//consider overflow
+	while (x) {
+		res = res * 10 + x % 10;
+		x /= 10;
+	}
+	return (res<INT_MIN || res>INT_MAX) ? 0 : res;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//326. Power of Three
+//it has loop
+bool isPowerOfThree0(int n) {
+	if (n <= 0)
+		return false;
+	while (n % 3 == 0)
+		n = n / 3;
+	if (n == 1)
+		return true;
+	return false;
+}
+
+//math,math,math
+//this will not work for none prime numbers
+bool isPowerOfThree1(int n) {
+	if (n <= 0)
+		return false;
+	//(int)(log(INT_MAX) / log(3)); get the biggest possible power in INT
+	int MaxPowThree = pow(3, (int)(log(INT_MAX) / log(3)));
+	if (MaxPowThree%n == 0)
+		return true;
+	return false;
+}
+
+//cannot use log (natural log) here, because it will generate round off error for n=243
+bool isPowerOfThree(int n) {
+	if (n <= 0)
+		return false;
+	double m = log10(n) / log10(3);
+	if (m - (int)m>0)
+		return false;
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//204. Count Primes
+//not fast enough
+int countPrimes0(int n) {
+	if (n == 0)
+		return 0;
+	int count = 0;
+	for (int i = 2; i < n; i++) {
+		//no need to go over i^0.5  the upper side number have be checked by pair until i^0.5
+		for (int j = 2; j <= sqrt(i); j++)
+			if (i%j == 0) {
+				count--;
+				break;
+			}
+		count++;
+	}
+	return count;
+}
+
+//Sieve of Eratosthenes, kick out all the nonprime
+int countPrimes(int n) {
+	vector<bool> prime(n, true);
+	prime[0] = false, prime[1] = false;
+	for (int i = 0; i <= sqrt(n); ++i) {//no need to go over sqrt
+		if (prime[i]) {
+			for (int j = i*i; j < n; j += i) {//n*prime is not prime
+				prime[j] = false;
+			}
+		}
+	}
+	return count(prime.begin(), prime.end(), true);
+}
+
+void main() {
+	int b = INT_MIN;
+
+	int t = 2147483649;
+	float xx = (log(100) / log(3));
+	float x = log(0x7fffffff);
+	float y= log(3);
+	float a = log(0x7fffffff) / log(3);
+	float Max = pow(3, a);
+	float Max3 = pow(3, (int)a);
+
+	vector<int> ve = { 1,2,3};
+	int A = countPrimes(7);
 }
