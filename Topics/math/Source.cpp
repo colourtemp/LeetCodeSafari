@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <numeric>//accumulate
 #include <set>
+#include <string> 
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -53,7 +54,7 @@ int mySqrt3(int x) {
 //Newton¡¯s method
 //f(x)=x^2-a; //f(x)==0, x is a's sqrt
 //http://blog.csdn.net/tclxspy/article/details/51034653
-//closer_x=x-f(x)/2x
+//closer_x=x-(f(x)/2x)
 //        =(2x^2-x^2+a)/2x
 //        =(x^2+a)/2x
 int mySqrt4(int x) {
@@ -157,7 +158,7 @@ int maxCount(int m, int n, vector<vector<int>>& ops) {
 //Integer	4B	-2,147,483,648	2,147,483,647
 bool checkPerfectNumber(int num) {
 	static unordered_set<int> n = { 6, 28, 496, 8128, 33550336 };
-	return (bool)n.count(num);
+	return n.count(num);
 }
 
 bool checkPerfectNumber1(int num) {
@@ -359,17 +360,239 @@ int countPrimes(int n) {
 	return count(prime.begin(), prime.end(), true);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//202. Happy Number
+//kinda slow
+class Solution202 {
+public:
+	bool isHappy(int n) {
+		if (n <= 0)
+			return false;
+		unordered_set<int> seen;
+		while (true) {
+			seen.insert(n);
+			n = SS(n);
+			if (seen.find(n) != seen.end())//not search()
+				return false;
+			if (n == 1)
+				return true;
+		}
+
+	}
+
+private:
+	int SS(int n) {
+		int ss = 0;
+		while (n>0) {
+			int d = n % 10;
+			ss += d*d;
+			n /= 10;
+		}
+		return ss;
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//172. Factorial Trailing Zeroes
+//fail until n==30
+int trailingZeroes0(int n) {
+
+	if (n<0)
+		n = n*(-1);
+	long long Zn = 0, Ln = n;//condiser overflow(still not enough)
+	while (n>1) {
+		while (Ln % 10 == 0) {
+			Ln /= 10;
+			Zn++;
+		}
+		Ln *= (--n);
+	}
+	return Zn;
+}
+
+//math math math
+/*
+Because all trailing 0 is from factors 5 * 2.
+In the n! operation, factors 2 is always ample. So we just count how many 5 factors in all number from 1 to n.
+*/
+int trailingZeroes1(int n) {
+	return n<5 ? 0 : n / 5 + trailingZeroes1(n / 5);
+}
+
+//cautious about overflow when multiply
+/*
+We just count the number of 5 in Equation 1.
+Multiple of 5 provides one 5, multiple of 25 provides two 5 and so on.
+Note the duplication : multiple of 25 is also multiple of 5, so multiple of 25 only provides one extra 5.
+*/
+int trailingZeroes2(int n) {
+	int result = 0;
+	long long i;
+	//better than i <= INT_MAX
+	for (i = 5; n / i>0; i *= 5) {
+		result += (int)(n / i);
+	}
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//171. Excel Sheet Column Number
+int titleToNumber(string s) {
+	int result = 0;
+	for (int i = 0; i < s.size(); i++) {
+		result = result * 26 + (s.at(i) - 'A' + 1);
+	}
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//168. Excel Sheet Column Title
+//look into numeric relationship
+string convertToTitle(int n) {
+	string ret = "";
+	while (n>0) {
+		char x = 'A' + (n - 1) % 26;
+		ret.insert(ret.begin(), x);
+		//ret = char((n - 1) % 26 + 'A') + ret;
+		n = (n - 1) / 26;;
+	}
+	return ret;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//367. Valid Perfect Square
+//binary search   O(log(n))
+bool isPerfectSquare0(int num) {
+	int left = 1, right = num;
+	while (left <= right) {
+		long mid = left + (right - left) / 2;//use long to avoid overflow
+		//long mid=(left+right)>>1;
+		if (mid*mid>num) {
+			right = (int)mid - 1;
+		}
+		else if (mid*mid<num) {
+			left = (int)mid + 1;
+		}
+		else {
+			return true;
+		}
+	}
+	return false;
+}
+
+//A square number is 1+3+5+7+...    O(sqrt(n))>O(log(n))
+bool isPerfectSquare1(int num) {
+	int i = 1;
+	while (num>0) {
+		num -= i;
+		i += 2;
+	}
+	return num == 0 ? true : false;
+}
+
+//Newton method for sqrt
+int isPerfectSquare2(int x) {
+	long res = x;
+	while (res*res>x) {
+		res = (res*res + x) / (2 * res);
+	}
+	return res*res==x;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//400. Nth Digit
+//std problem solving methodology
+int findNthDigit(int n) {
+	//get the length of target num
+	long len = 1, count = 9;
+	while (n - count*len>0) {
+		n -= len*count;
+		len++;
+		count *= 10;//when ever multiplication involves consider overflow
+	}
+	//get the target number
+	int offset = n%len == 0 ? n / len - 1 : n / len;
+	int Tnum = pow(10, len - 1) + offset;
+	//get the exact index in target number count from right
+	int index = n%len;
+	if (index == 0)
+		index = len;
+	for (int i = index; i<len; i++)
+		Tnum /= 10;
+	return Tnum % 10;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//415. Add Strings
+//string(1, char)
+string addStrings(string num1, string num2) {
+	string Long = num1;
+	string Short = num2;
+	if (num1.size()<num2.size()) {
+		Long = num2;
+		Short = num1;
+	}
+	int carry = 0;
+	int s = Short.size() - 1, l = Long.size() - 1;
+	string result = "";
+	for (; s >= 0; s--, l--) {
+		int sum = Short[s] + Long[l] - 2 * '0' + carry;
+		carry = sum / 10;
+		sum %= 10;
+		result = string(1, ('0' + sum)) + result;
+	}
+	for (; l >= 0; l--) {
+		int sum = Long[l] - '0' + carry;
+		carry = sum / 10;
+		sum %= 10;
+		result = string(1, ('0' + sum)) + result;
+	}
+	if (carry>0)
+		result = string(1, ('0' + carry)) + result;
+	return result;
+}
+
+//similar
+//to_string(char);reverse(res.begin(), res.end());
+string addStrings(string num1, string num2) {
+	int i = num1.size() - 1;
+	int j = num2.size() - 1;
+	int carry = 0;
+	string res = "";
+	while (i >= 0 || j >= 0 || carry) {
+		long sum = 0;
+		if (i >= 0) { sum += (num1[i] - '0'); i--; }
+		if (j >= 0) { sum += (num2[j] - '0'); j--; }
+		sum += carry;
+		carry = sum / 10;
+		sum = sum % 10;
+		res = res + to_string(sum);
+	}
+	reverse(res.begin(), res.end());
+	return res;
+}
+
+//less lines
+string addStrings1(string num1, string num2) {
+	if (num1.size() < num2.size()) return addStrings(num2, num1);//flipe the order smarter
+	int carry = 0, i = num1.size() - 1, j = num2.size() - 1;
+	for (; i >= 0 && (carry || j >= 0); i--, j--, carry /= 10)//compress all if condition
+		num1[i] = (carry += num1[i] - '0' + (j >= 0 ? num2[j] - '0' : 0)) % 10 + '0';
+	return (carry ? "1" : "") + num1;
+}
+
+
+
 void main() {
 	int b = INT_MIN;
 
-	int t = 2147483649;
-	float xx = (log(100) / log(3));
-	float x = log(0x7fffffff);
-	float y= log(3);
-	float a = log(0x7fffffff) / log(3);
-	float Max = pow(3, a);
-	float Max3 = pow(3, (int)a);
+//	INT_MAX == 2,147,483,647==2^31-1	   ==0x7FFFFFFF
+//	INT_MIN = -2,147,483,648==-((2^31-1)+1)==0x80000000->(-1(0x7FFFFFFF+1))
 
 	vector<int> ve = { 1,2,3};
-	int A = countPrimes(7);
+
+	float a = sqrt(808201);
+	int i= findNthDigit(1000000000);
+
 }
