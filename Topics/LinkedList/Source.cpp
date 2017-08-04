@@ -223,6 +223,37 @@ using namespace std;
 	 return dummy.next;
  }
 
+ class Solution21 {
+ public:
+	 ListNode *mergeTwoLists(ListNode *l1, ListNode *l2) {
+		 while (l2 != NULL) {
+			 ListNode* tem = l2->next;
+			 sortedInsert(&l1, l2);
+			 l2 = tem;
+		 }
+		 return l1;
+	 }
+	 //use of reference, save the space of dummy
+	 void sortedInsert(ListNode **headRef, ListNode *newNode) {
+		 ListNode **currRef = headRef;//play with the origin pointer instead of the copy
+		 while (*currRef != nullptr && (*currRef)->val < newNode->val)
+			 currRef = &((*currRef)->next);
+		 newNode->next = *currRef;
+		 *currRef = newNode;//put newNode into the origin pointer's target
+	 }
+	 //use of dummy
+	 void sortedInsert_0(ListNode **headRef, ListNode *newNode) {
+		 ListNode dummy(0), *tail = &dummy;
+		 dummy.next = *headRef;
+		 //keep using the ->next because need know both side of the origin
+		 while (tail->next != NULL && tail->next->val < newNode->val)
+			 tail = tail->next;
+		 newNode->next = tail->next;
+		 tail->next = newNode;
+		 *headRef = dummy.next;
+	 }
+ };
+
  void main() {
 	 ListNode* nod=new ListNode(0);
 	 ListNode* nod1=new ListNode(1);
