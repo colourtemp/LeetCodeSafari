@@ -803,26 +803,311 @@ using namespace std;
 	 }
  };
 
+ ///////////////////////////////////////////////////////////////////////////
+ // 138. Copy List with Random Pointer
+
+ 
+  //Definition for singly-linked list with a random pointer.
+  struct RandomListNode {
+      int label;
+      RandomListNode *next, *random;
+      RandomListNode(int x) : label(x), next(NULL), random(NULL) {}
+  };
+ 
+  //space complexity of this solution is O(N)
+ //might faster with map
+ RandomListNode *copyRandomList_0(RandomListNode *head) {
+	 //always remember empty input
+	 if (head == NULL)
+		 return NULL;
+	 //put origin linked list in vector for position caculation
+	 vector<RandomListNode*> list;
+	 while (head != NULL) {
+		 list.push_back(head);
+		 head = head->next;
+
+	 }
+
+	 vector<int> positon;
+	 vector<RandomListNode*> newlist;
+	 RandomListNode dummy(0);
+	 RandomListNode* tail = &dummy;
+	 for (auto nod : list) {
+		 //get the relative position of random pointer
+		 if (nod->random == NULL)
+			 positon.push_back(-1);
+		 else
+			 positon.push_back(distance(list.begin(), find(list.begin(), list.end(), nod->random)));
+		 //build new list with out random pointer, put new list in vector
+		 RandomListNode* newnod = new RandomListNode(nod->label);
+		 newlist.push_back(newnod);
+		 tail->next = newnod;
+		 tail = tail->next;
+	 }
+	 //set random pointer according to relative position
+	 for (int i = 0; i<newlist.size(); i++) {
+		 if (positon[i] == -1)
+			 newlist[i]->random = NULL;
+		 else
+			 newlist[i]->random = newlist[positon[i]];
+	 }
+	 return dummy.next;
+ }
+
+//The idea is to associate the original node with its copy node in a single linked list.
+// O(n) space, O(1) extra space and linear time complexity O(N)
+ RandomListNode *copyRandomList_1(RandomListNode *head) {
+	 if (!head) 
+		 return NULL;
+	 RandomListNode* run = head;
+	 /* Insert the copy of each node after it. */
+	 /*
+	 origin		1 - 2 - 3 - NULL
+	 after copy	1   2   3   NULL
+				| / | / | /
+				1   2	3
+	*/
+	 while (run) {
+		 RandomListNode* copy = new RandomListNode(run->label);
+		 copy->next = run->next;
+		 run->next = copy;
+		 run = run->next->next;
+	 }
+	 /* Set the random pointer for each copy. */
+	 run = head;
+	 while (run) {
+		 if (run->random)
+			 run->next->random = run->random->next;
+		 run = run->next->next;
+	 }
+	 /* Restore the original list and extract the duplicated nodes */
+	 /*
+	 origin		1 - 2 - 3 - NULL
+	 after mod	1 - 2 - 3 - NULL
+
+				1 - 2 - 3 - NULL
+	 */
+	 RandomListNode* new_head = new RandomListNode(0);
+	 RandomListNode* new_run;
+	 run = head;
+	 new_head->next = head->next;
+	 while (run) {
+		 new_run = run->next;
+		 run->next = new_run->next;
+		 if (run->next)
+			 new_run->next = new_run->next->next;
+		 run = run->next;
+	 }
+	 return new_head->next;
+ }
+
+ //similiar to above, modify origin random instead
+ RandomListNode *copyRandomList_2(RandomListNode *head) {
+	 RandomListNode *newHead, *l1, *l2;
+	 if (head == NULL) return NULL;
+	 /*origin
+	 l1			1 - 2 - 3   NULL
+	 ramd p		  \ |
+	 l1			1 - 2 - 3   NULL
+	 */
+
+	 /*connect
+	 l2			1   2   3   NULL
+	 next p		  \ |
+	 l1			1 - 2 - 3   NULL
+	 rand p		|	|	|
+	 l2			1   2   3   NULL
+	 */
+	 for (l1 = head; l1 != NULL; l1 = l1->next) {
+		 l2 = new RandomListNode(l1->label);
+		 l2->next = l1->random;
+		 l1->random = l2;
+	 }
+
+	 /* build rand p
+	 l2			1   2   3   NULL
+	 next p		  \ |
+	 l1			1 - 2 - 3   NULL
+	 rand p		|	|	|
+	 l2			1   2   3   NULL
+	 rand p		  \ |
+	 l2			1   2   3   NULL
+	 */
+	 newHead = head->random;
+	 for (l1 = head; l1 != NULL; l1 = l1->next) {
+		 l2 = l1->random;
+		 l2->random = l2->next ? l2->next->random : NULL;
+	 }
+	 /* restore	 */
+	 for (l1 = head; l1 != NULL; l1 = l1->next) {
+		 l2 = l1->random;
+		 l1->random = l2->next;
+		 l2->next = l1->next ? l1->next->random : NULL;
+	 }
+
+	 return newHead;
+ }
+
+ ///////////////////////////////////////////////////////////////////////////
+ //109. Convert Sorted List to Binary Search Tree
+
+  //Definition for a binary tree node.
+  struct TreeNode {
+      int val;
+      TreeNode *left;
+      TreeNode *right;
+      TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+  };
+
+  /*
+   The run time complexity is clearly O(N lg N), where N is the total number of elements in the list. 
+   This is because each level of recursive call requires a total of N/2 traversal steps in the list, 
+   and there are a total of lg N number of levels (ie, the height of the balanced tree).
+  */
+  TreeNode* sortedListToBST_0(ListNode* head) {
+	  if (head == NULL)
+		  return NULL;
+	  if (head->next == NULL) {
+		  TreeNode* tnod = new TreeNode(head->val);
+		  return tnod;
+	  }
+	  //fast slow trick
+	  ListNode* p1 = head;
+	  ListNode* p2 = head->next->next;
+	  while (p2 != NULL&&p2->next != NULL) {
+		  p1 = p1->next;
+		  p2 = p2->next->next;
+	  }
+	  p2 = p1->next;//middle
+	  p1->next = NULL;//break left chain
+	  p1 = p2->next;//right chain start
+	  TreeNode* tnod = new TreeNode(p2->val);
+	  //recur
+	  tnod->left = sortedListToBST_0(head);
+	  tnod->right = sortedListToBST_0(p1);
+
+	  return tnod;
+  }
+ 
+  // create nodes bottom-up, and assign them to its parents. 
+  //space complexity should be O(logn) 
+  //(overhead used by the recursion, not including space used by the nodes) .
+  //run time complexity is O(N)
+  class Solution109 {
+  public:
+	  ListNode *list;
+	  int count(ListNode *node) {
+		  int size = 0;
+		  while (node) {
+			  ++size;
+			  node = node->next;
+		  }
+		  return size;
+	  }
+	  //use subtree total nods number n as indicater
+	  TreeNode *generate(int n) {
+		  if (n == 0)//when divide to the leaf n==0
+			  return NULL;
+		  TreeNode *node = new TreeNode(0);
+		  node->left = generate(n / 2);
+		  node->val = list->val;
+		  list = list->next;
+		  node->right = generate(n - n / 2 - 1);
+		  return node;
+	  }
+
+	  TreeNode *sortedListToBST(ListNode *head) {
+		  this->list = head;
+		  return generate(count(head));
+	  }
+  };
+
+
+  //another idea
+  /*
+  We first create an empty tree with the correct structure, 
+  then do an iterative in-order traversal of the tree 
+  setting values into the nodes as we traverse the list. 
+  The overall complexity is still O(N).
+  */
+  TreeNode* sortedListToBST_X(ListNode* head) {//divide upper generate function into two run
+	  return NULL;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  //92. Reverse Linked List II
+  /* reverse everything after c to the front of shifting block
+  ab|cde|f
+  -----------------------
+  ab|c e|f
+     <d
+  ab|dce|f
+  ------------------------
+  ab|dc |f
+     <<e
+  ab|edc|f
+  */
+  ListNode* reverseBetween(ListNode* head, int m, int n) {
+	  ListNode* new_head = new ListNode(0);
+	  new_head->next = head;
+	  ListNode* pre = new_head;
+	  for (int i = 0; i < m - 1; i++)
+		  pre = pre->next; //nod (a) before shift block
+
+	  ListNode* cur = pre->next;//nod (c) start to move (c)shift block <will finally go to the end of block>
+
+	  for (int i = 0; i < n - m; i++) {
+		  ListNode* move = cur->next; //moving nod(d) next to (c)
+		  cur->next = move->next; //take out moving nod(d)
+		  move->next = pre->next;//put moving nod(d) to the front of shift block
+		  pre->next = move;//reconnect front side and shift block
+	  }
+	  return new_head->next;
+  }
+
+
+  ///////////////////////////////////////////////////////////////////////////
+  // 86. Partition List
+  ListNode* partition_0(ListNode* head, int x) {
+	  ListNode smaller(0), bigger(0);
+	  ListNode *stail = &smaller, *btail = &bigger;
+	  //separete
+	  while (head != NULL) {
+		  if (head->val<x) {
+			  stail = stail->next = head;//connect and shift            
+		  }
+		  else {
+			  btail = btail->next = head;
+		  }
+		  head = head->next;
+	  }
+	  //connect
+	  btail->next = NULL;
+	  stail->next = bigger.next;
+	  return smaller.next;
+  }
+
+
  void main() {
-	 ListNode* nod=new ListNode(7);
-	 ListNode* nod1=new ListNode(2);
-	 ListNode* nod2=new ListNode(4);
-	 ListNode* nod3 = new ListNode(3);
+	 ListNode* nod=new ListNode(3);
+	 ListNode* nod1=new ListNode(5);
+	 ListNode* nod2=new ListNode(3);
+	 ListNode* nod3 = new ListNode(4);
 	 ListNode* nod4 = new ListNode(5);
 	 ListNode* nod5 = new ListNode(6);
-	 ListNode* nod6 = new ListNode(4);
+	 ListNode* nod6 = new ListNode(7);
 
 
 	 nod->next = nod1;
 	 nod1->next = nod2;
-	 nod2->next = nod3;
-	 
+	 //nod2->next = nod3;
+	 nod3->next = nod4;
 	 nod4->next = nod5;
 	 nod5->next = nod6;
 
+	 reverseBetween(nod, 1, 2);
 
 
-	 addTwoNumbers(nod,nod4);
 	 delete nod;
 	 delete nod1;
 	 delete nod2;
