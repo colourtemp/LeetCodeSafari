@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LinkedList", "LinkedList\Li
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BitMani", "BitMani\BitMani.vcxproj", "{CFD4CAA1-C9B3-4019-8891-ECC70D5A1B7D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StackHeap", "StackHeap\StackHeap.vcxproj", "{5F3A2FA9-7AB6-45CF-B74D-B7AF1885E24B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -91,6 +93,14 @@ Global
 		{CFD4CAA1-C9B3-4019-8891-ECC70D5A1B7D}.Release|x64.Build.0 = Release|x64
 		{CFD4CAA1-C9B3-4019-8891-ECC70D5A1B7D}.Release|x86.ActiveCfg = Release|Win32
 		{CFD4CAA1-C9B3-4019-8891-ECC70D5A1B7D}.Release|x86.Build.0 = Release|Win32
+		{5F3A2FA9-7AB6-45CF-B74D-B7AF1885E24B}.Debug|x64.ActiveCfg = Debug|x64
+		{5F3A2FA9-7AB6-45CF-B74D-B7AF1885E24B}.Debug|x64.Build.0 = Debug|x64
+		{5F3A2FA9-7AB6-45CF-B74D-B7AF1885E24B}.Debug|x86.ActiveCfg = Debug|Win32
+		{5F3A2FA9-7AB6-45CF-B74D-B7AF1885E24B}.Debug|x86.Build.0 = Debug|Win32
+		{5F3A2FA9-7AB6-45CF-B74D-B7AF1885E24B}.Release|x64.ActiveCfg = Release|x64
+		{5F3A2FA9-7AB6-45CF-B74D-B7AF1885E24B}.Release|x64.Build.0 = Release|x64
+		{5F3A2FA9-7AB6-45CF-B74D-B7AF1885E24B}.Release|x86.ActiveCfg = Release|Win32
+		{5F3A2FA9-7AB6-45CF-B74D-B7AF1885E24B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

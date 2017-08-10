@@ -1088,9 +1088,153 @@ using namespace std;
   }
 
 
+  ///////////////////////////////////////////////////////////////////////////
+  //82. Remove Duplicates from Sorted List II
+  ListNode *deleteDuplicatesII_0(ListNode *head) {
+	  ListNode fakeHead(0);
+	  fakeHead.next = head;
+	  ListNode* pre = &fakeHead;
+	  ListNode* p = pre->next;
+	  while (p) {
+		  ListNode* pn = p->next;
+		  if (pn && p->val == pn->val) {
+			  // move pn to next different value
+			  while (pn && p->val == pn->val) {
+				  pn = pn->next;
+			  }
+			  p = pn;
+			  pre->next = p;
+		  }
+		  else {
+			  pre = p;
+			  p = p->next;
+		  }
+	  }
+	  return fakeHead.next;
+  }
+
+  //recur got easier code longer time
+  ListNode* deleteDuplicatesII_1(ListNode* head) {
+	  if (!head) return 0;
+	  if (!head->next) return head;
+
+	  int val = head->val;
+	  ListNode* p = head->next;
+
+	  if (p->val != val) {
+		  head->next = deleteDuplicatesII_1(p);
+		  return head;
+	  }
+	  else {
+		  while (p && p->val == val) 
+			  p = p->next;
+		  return deleteDuplicatesII_1(p);
+	  }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  //328. Odd Even Linked List
+  ListNode* oddEvenList_1(ListNode* head) {
+	  if (head == NULL || head->next == NULL)
+		  return head;
+
+	  ListNode* Oed = head;
+	  ListNode* Eed = head->next;
+	  ListNode* cur = Eed->next;
+	  bool odd = true;
+	  while (cur) {
+		  Eed->next = cur->next;
+		  cur->next = Oed->next;
+		  Oed = Oed->next = cur;
+		  if (Eed->next)
+			  Eed = Eed->next;
+		  cur = Eed->next;
+	  }
+	  return head;
+  }
+
+  //easier to understand
+  ListNode* oddEvenList_2(ListNode* head)
+  {
+	  if (!head) return head;
+	  ListNode *odd = head, *evenhead = head->next, *even = evenhead;
+	  while (even && even->next)
+	  {
+		  odd->next = odd->next->next;
+		  even->next = even->next->next;
+		  odd = odd->next;
+		  even = even->next;
+	  }
+	  odd->next = evenhead;
+	  return head;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  //19. Remove Nth Node From End of List
+  ListNode* removeNthFromEnd(ListNode* head, int n)
+  {
+	  ListNode** t1 = &head, *t2 = head;
+	  for (int i = 1; i < n; ++i)//use two pointer to keep the gap
+	  {
+		  t2 = t2->next;
+	  }
+	  while (t2->next != NULL)
+	  {
+		  t1 = &((*t1)->next);
+		  t2 = t2->next;
+	  }
+	  *t1 = (*t1)->next;//try use more pointer to pointer
+	  return head;
+  }
+
+
+  ///////////////////////////////////////////////////////////////////////////
+  //2. Add Two Numbers
+  ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+	  int carry = 0;
+	  ListNode dummy(0);
+	  ListNode* tail = &dummy;
+	  while (l1 || l2 || carry) {
+		  int sum = (l1 ? l1->val : 0) + (l2 ? l2->val : 0) + carry;
+		  carry = sum / 10;
+		  tail = tail->next = new ListNode(sum % 10);//reduce copy can speed up
+		  l1 = l1 ? l1->next : l1;
+		  l2 = l2 ? l2->next : l2;
+	  }
+	  return dummy.next;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  //24. Swap Nodes in Pairs
+  ListNode* swapPairs_0(ListNode* head) {
+		if (head == NULL || head->next == NULL)
+			return head;
+
+		ListNode* one = head;
+		ListNode* two = one->next;
+
+		one->next = two->next;
+		two->next = one;		
+		one->next = swapPairs_0(one->next);
+
+		return two;
+  }
+
+  //pointer pointer 
+  ListNode* swapPairs_1(ListNode* head) {
+	  ListNode **pp = &head, *a, *b;
+	  while ((a = *pp) && (b = a->next)) {
+		  a->next = b->next;
+		  b->next = a;
+		  *pp = b;//replace what ever the origin pointer is
+		  pp = &(a->next);//go to handle the next target pointer
+	  }
+	  return head;
+  }
+
  void main() {
-	 ListNode* nod=new ListNode(3);
-	 ListNode* nod1=new ListNode(5);
+	 ListNode* nod=new ListNode(1);
+	 ListNode* nod1=new ListNode(2);
 	 ListNode* nod2=new ListNode(3);
 	 ListNode* nod3 = new ListNode(4);
 	 ListNode* nod4 = new ListNode(5);
@@ -1100,12 +1244,12 @@ using namespace std;
 
 	 nod->next = nod1;
 	 nod1->next = nod2;
-	 //nod2->next = nod3;
-	 nod3->next = nod4;
+	 nod2->next = nod3;
+	 //nod3->next = nod4;
 	 nod4->next = nod5;
 	 nod5->next = nod6;
 
-	 reverseBetween(nod, 1, 2);
+	 swapPairs_1(nod);
 
 
 	 delete nod;
