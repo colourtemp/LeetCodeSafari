@@ -584,6 +584,99 @@ string addStrings1(string num1, string num2) {
 
 
 
+/////////////////////////////////////////////////////////////////////////////////////
+//634. Find the Derangement of An Array
+//refer https://en.wikipedia.org/wiki/Derangement
+//math + straight forward DP
+int findDerangement_0(int n) {
+	if (n == 1)
+		return 0;
+	if (n == 2)
+		return 1;
+	int M = 1000000007;
+	vector<long long> DP(n + 1);
+	DP[1] = 0;
+	DP[2] = 1;
+	for (int i = 3; i<n + 1; i++) {
+		DP[i] = (long long)(i - 1)*(DP[i - 1] + DP[i - 2]) % M;
+	}
+	return (int)DP[n];
+}
+
+//DP add rolling array
+int findDerangement_1(int n) {
+	if (n == 1)
+		return 0;
+	if (n == 2)
+		return 1;
+	int M = 1000000007;
+	vector<long long> DP(2);
+	DP[0] = 0;
+	DP[1] = 1;
+	for (int i = 3; i<n + 1; i++) {
+		DP[(i - 1) % 2] = (long long)(i - 1)*(DP[0] + DP[1]) % M;
+	}
+	return (int)DP[(n - 1) % 2];
+}
+
+/*******************************************
+* about mod 1000000007==pow(10,9)+7        *
+********************************************/
+/*
+A few distributive properties of modulo are as follows:
+1. ( a + b ) % c = ( ( a % c ) + ( b % c ) ) % c
+2. ( a * b ) % c = ( ( a % c ) * ( b % c ) ) % c
+	to avoid overflow either declare a or b as long long int
+	OR use explicit type casting (( long long ) a * b ) % c.
+3. ( a ¨C b ) % c = ( ( a % c ) - ( b % c ) ) % c ( see notes below )
+	( a ¨C b ) % c = ( ( a % c ) - ( b % c ) ) %c is fine mathematically.
+	But % works differently with negative numbers
+	while programming, don't use:
+	a=(a%c);
+	b=(b%c);
+	ans=( a - b )%c;
+
+	instead use:
+	a=a%c;
+	b=b%c;
+	ans = ( a - b + c ) % c;
+4. ( a / b ) % c NOT EQUAL TO ( ( a % c ) / ( b % c ) ) % c
+	The modulo multiplicative inverse ( MMI ) of a number y is z iff (z * y) % M == 1.
+
+	instead of perform:
+		z=(x*(1/y))%M;
+	we should perform:
+		y2=findMMI(y,M);
+		z=(x*y2)%M;
+
+	MMI may be different for different M.
+	findMMI using Fermat's Little Theorem: y2==y^(M-2) (mod M)
+	int fast_pow(long long base, long long n,long long M) //base^n(mod M)
+	{
+		if(n==0)
+			return 1;
+		if(n==1)
+			return base;
+		long long halfn=fast_pow(base,n/2,M);
+		if(n%2==0)
+			return ( halfn * halfn ) % M;
+		else
+			return ( ( ( halfn * halfn ) % M ) * base ) % M;
+	}
+	int findMMI_fermat(int n,int M)
+	{
+		return fast_pow(n,M-2,M);//
+	}
+*/
+/*
+For M to be a prime number is really important.
+1.Because if it is not a prime number then it is possible that the result of a modulo operation may become 0.
+Eg. if M=12 and we perform ( 8 * 3 ) % 12, we'll get 0.
+But if M is prime then ( ( a % M ) * ( b % M ) ) % M can never be 0 (unless a or b == 0)
+2.If M is prime then we can find MMI for any number n such that 1<=n<M
+*/
+
+
 void main() {
 	int b = INT_MIN;
 

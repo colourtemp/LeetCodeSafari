@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <set>
 #include <array>
 #include <algorithm>
@@ -263,15 +264,19 @@ int arrayPairSum(vector<int>& nums) {
 	return ret;
 }
 
-//问题拆分的方法
-int maxSubArray(vector<int>& A) {
-	int ans = A[0], sum = 0;
-	for (size_t i = 0; i<A.size(); i++) {
-		sum += A[i];
-		ans = max(sum, ans);
-		sum = max(sum, 0);
+//53. Maximum Subarray
+//DP
+int maxSubArray(vector<int>& nums) {
+	if (nums.size() == 0)
+		return 0;
+	int localMax = nums[0];
+	int globalMax = nums[0];
+	for (int i = 1; i<nums.size(); i++) {
+		localMax = max(nums[i], localMax + nums[i]);
+		if (localMax>globalMax)
+			globalMax = localMax;
 	}
-	return ans;
+	return globalMax;
 }
 
 //考虑edge situation
@@ -497,6 +502,118 @@ int findPairs1(vector<int>& nums, int k) {
 			while (i<j && nums[i0] == nums[i]) i++;//slide on duplicate
 		}
 	}
+	return res;
+}
+
+//====================================================array medium=============================
+
+////////////////////////////////////////////////////////////////////////////
+//531. Lonely Pixel I
+//naive count
+int findLonelyPixel(vector<vector<char>>& picture) {
+	int lin = picture.size();
+	if (lin == 0)
+		return 0;
+	int col = picture[0].size();
+	if (col == 0)
+		return 0;
+	vector<vector<int>> linCountB(lin, vector<int>());
+	vector<int> colCountB(col, 0);
+	for (int i = 0; i<lin; i++) {
+		for (int j = 0; j<col; j++) {
+			if (picture[i][j] == 'B') {
+				linCountB[i].push_back(j);
+				colCountB[j]++;
+			}
+		}
+	}
+	int ret = 0;
+	for (int i = 0; i<lin; i++) {
+		if (linCountB[i].size() == 1 && colCountB[linCountB[i][0]] == 1)
+			ret++;
+	}
+	return ret;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//533. Lonely Pixel II
+//naive count
+int findBlackPixel_0(vector<vector<char>>& picture, int N) {
+	int row, col;
+	if ((row = picture.size()) == 0 || (col = picture[0].size()) == 0)
+		return 0;
+	unordered_map<int, unordered_set<int>> RBcount, CBcount;
+	for (int r = 0; r<row; r++) {
+		int n = 0;
+		for (int c = 0; c<col; c++) {
+			if (picture[r][c] == 'B')
+				n++;
+		}
+		RBcount[n].insert(r);
+	}
+	for (int c = 0; c<col; c++) {
+		int n = 0;
+		for (int r = 0; r<row; r++) {
+			if ((picture[r][c] == 'B'))
+				n++;
+		}
+		CBcount[n].insert(c);
+	}
+
+	vector<pair<int, int>> candidate;
+	if (RBcount[N].size() && CBcount[N].size()) {
+		for (auto& r : RBcount[N]) {
+			for (auto& c : CBcount[N]) {
+				candidate.emplace_back(r, c);
+			}
+		}
+	}
+	else
+		return 0;
+
+	int ret = 0;
+	for (auto& p : candidate) {
+		int r = p.first, c = p.second;
+		bool same = true;
+		for (auto & row : picture) {
+			if (row[c] == 'B'&&row != picture[r]) {
+				same = false;
+				break;
+			}
+		}
+		if (same)
+			ret++;
+	}
+	return ret;
+}
+
+//more conscious
+int findBlackPixel(vector<vector<char>>& picture, int N) {
+	int m = picture.size();
+	if (!m) return 0;
+	int n = picture[0].size();
+	if (!n) return 0;
+	vector<int> rows(m, 0), cols(n, 0);
+	unordered_map<string, int> um;
+	vector<string> srows;
+	for (int i = 0; i < m; ++i) {
+		string s;
+		for (int j = 0; j < n; ++j) {
+			if (picture[i][j] == 'B') {
+				rows[i]++;
+				cols[j]++;
+			}
+			s.push_back(picture[i][j]);
+		}
+		um[s]++;
+		srows.push_back(s);
+	}
+	int res = 0;
+	for (int i = 0; i < m; ++i)
+		if (rows[i] == N && um[srows[i]] == N)
+			for (int j = 0; j < n; ++j)
+				if (picture[i][j] == 'B' && cols[j] == N) ++res;
 	return res;
 }
 
